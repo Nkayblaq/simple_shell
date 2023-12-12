@@ -1,7 +1,7 @@
 #include "shell.h"
 
 /**
- * main - Simple shell program by Nkiru and Ayodeji
+ * main - Simple shell program by Nkiru and Ayodeji.
  *
  * This program reads user commands and executes them.
  * @argc: command line arguments.
@@ -9,92 +9,90 @@
  * Return: Always 0.
  */
 
+int main(int argc, char *argv[]);
 int main(int argc, char *argv[])
 {
-int i = 0;
-char *command = NULL;
-size_t buffsize = 1024;
-ssize_t bytereturned;
-char *token = NULL;
-int interactive = 1;
-char **args;
+	int i = 0;
+	char *command = NULL;
+	size_t buffsize = 1024;
+	ssize_t bytereturned;
+	char *token = NULL;
+	int interactive = 1;
+	char **args;
 
-(void) argc;
-(void) argv;
+	(void)argc;
+	(void)argv;
 
-while (1)
-{
-interactive = isatty(STDIN_FILENO);
+	while (1)
+	{
+		interactive = isatty(STDIN_FILENO);
 
-args = (char **)malloc(10 * sizeof(char *));
-if (args == NULL)
-{
-perror("Memory allocation error");
-exit(EXIT_FAILURE);
-}
+		args = (char **)malloc(10 * sizeof(char *));
+		if (args == NULL)
+		{
+			perror("Memory allocation error");
+			exit(EXIT_FAILURE);
+		}
 
-if (interactive != 0)
-{
-int written = write(STDOUT_FILENO, "$ ", 2);
-if (written == -1)
-{
-perror("Error writing prompt");
-free(args);
-exit(EXIT_FAILURE);
-}
-}
-i = 0;
-bytereturned = getline(&command, &buffsize, stdin);
+		if (interactive != 0)
+		{
+			int written = write(STDOUT_FILENO, "$ ", 2);
 
-if (bytereturned == -1)
-{
-perror("Error reading input");
-free(args);
-free(command);
-exit(EXIT_FAILURE);
-}
-if (interactive == 0)
-break;
+			if (written == -1)
+			{
+				perror("Error writing prompt");
+				freemem(args);
+				exit(EXIT_FAILURE);
+			}
+		}
+		i = 0;
+		bytereturned = getline(&command, &buffsize, stdin);
 
-token = strtok(command, "\n\t\r");
-while (token != NULL)
-{
-args[i] = strdup(token);
-if (args[i] == NULL)
-{
-perror("Memory allocation error");
-freemem(args);
-free(command);
-exit(EXIT_FAILURE);
-}
-i++;
-token = strtok(NULL, "\n\t\r");
-}
+		if (bytereturned == -1)
+		{
+			perror("Error reading input");
+			freemem(args);
+			free(command);
+			exit(EXIT_FAILURE);
+		}
+		if (interactive == 0)
+			break;
 
-if (i == 0)
-{
-freemem(args);
-continue;
-}
-if (strcmp(args[0], "exit") == 0)
-{
-freemem(args);
-free(command);
-exit_shell();
-break;
-}
+		token = strtok(command, "\n\t\r");
+		while (token != NULL)
+		{
+			args[i] = strdup(token);
+			if (args[i] == NULL)
+			{
+				perror("Memory allocation error");
+				freemem(args);
+				free(command);
+				exit(EXIT_FAILURE);
+			}
+			i++;
+			token = strtok(NULL, "\n\t\r");
+		}
 
-if (interactive == 0)
-{
-env();
-}
+		if (i == 0)
+		{
+			freemem(args);
+			continue;
+		}
+		if (strcmp(args[0], "exit") == 0)
+		{
+			freemem(args);
+			free(command);
+			exit_shell();
+			break;
+		}
 
-_childprocess(args);
-
-freemem(args);
-}
-
-free(command);
-
-return (0);
+		if (interactive == 0)
+		{
+			env();
+		}
+		execute_command(args[0]);
+		freemem(args);
+	}
+	free(command);
+	return (0);
 }
